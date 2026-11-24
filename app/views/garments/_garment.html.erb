@@ -1,0 +1,89 @@
+<%# Card in the garment grid. Re-rendered by broadcasts as photos finish processing. %>
+<% front, back = garment.front, garment.back %>
+<article id="<%= dom_id(garment) %>"
+         class="group animate-rise"
+         data-selection-target="garment"
+         data-garment-id="<%= garment.id %>"
+         data-ready="<%= garment.ready? %>"
+         data-images="<%= garment.photos.size %>">
+  <div class="relative aspect-[3/4] overflow-hidden rounded-2xl bg-white ring-1 ring-ink/5 transition
+              group-data-[selected=true]:ring-2 group-data-[selected=true]:ring-ink group-data-[selected=true]:ring-offset-4 group-data-[selected=true]:ring-offset-paper">
+    <% [ front, back ].compact.each do |photo| %>
+      <div class="<%= "absolute inset-0 transition-opacity duration-500" %> <%= photo.back? ? "opacity-0 group-hover:opacity-100" : "" %>">
+        <% if photo.catalog.attached? %>
+          <%# While regenerating, the previous catalog shot stays on screen, faded. %>
+          <%= image_tag photo.catalog.variant(resize_to_limit: [ 900, 1200 ], format: :webp),
+                alt: "#{garment.display_name} — #{photo.side_label}", loading: "lazy",
+                class: "size-full object-contain p-2 transition #{photo.in_flight? ? "opacity-40 blur-[1px]" : ""}" %>
+        <% else %>
+          <%= image_tag photo.original.variant(resize_to_fill: [ 600, 800 ], format: :jpeg),
+                alt: "Foto original de #{garment.display_name} — #{photo.side_label}", loading: "lazy",
+                class: "size-full object-cover #{photo.failed? ? "grayscale opacity-60" : "opacity-50 blur-[1px] saturate-50"}" %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if garment.processing? %>
+      <div class="shimmer absolute inset-0"></div>
+      <div class="absolute inset-x-3 bottom-3 flex items-center gap-2 rounded-full bg-white/85 px-3 py-1.5 backdrop-blur">
+        <span class="size-1.5 rounded-full bg-thread animate-pulse"></span>
+        <span class="label text-ink"><%= garment.photos.any? { it.in_flight? && it.catalog.attached? } ? "Refazendo a foto" : "Fotografando para o catálogo" %></span>
+      </div>
+    <% elsif garment.failed? %>
+      <div class="absolute inset-x-3 bottom-3 rounded-xl bg-white/95 p-3 backdrop-blur">
+        <p class="label text-chalk">Não deu certo</p>
+        <p class="mt-1 line-clamp-2 text-xs text-ink-soft" title="<%= garment.photos.filter_map(&:error).join(" ") %>">
+          <%= garment.photos.filter_map(&:error).first %>
+        </p>
+        <%= button_to "Tentar de novo", retry_garment_path(garment), class: "mt-2 text-xs font-medium underline underline-offset-2 cursor-pointer" %>
+      </div>
+    <% end %>
+
+    <% if garment.ready? %>
+      <button type="button"
+              data-action="selection#toggle"
+              data-garment-id="<%= garment.id %>"
+              aria-pressed="false"
+              aria-label="Selecionar <%= garment.display_name %> para o vídeo"
+              class="absolute inset-0 cursor-pointer focus-visible:outline-none">
+        <span class="absolute left-3 top-3 grid size-7 place-items-center rounded-full border border-ink/25 bg-white/90 text-[11px] font-mono font-medium text-transparent transition
+                     group-hover:border-ink group-data-[selected=true]:border-ink group-data-[selected=true]:bg-ink group-data-[selected=true]:text-paper"
+              data-selection-badge>✓</span>
+      </button>
+    <% end %>
+
+    <% if back %>
+      <span class="label pointer-events-none absolute right-3 top-3 rounded-full bg-white/85 px-2 py-1 backdrop-blur">
+        <span class="group-hover:hidden">Frente</span><span class="hidden group-hover:inline">Costas</span>
+      </span>
+    <% end %>
+  </div>
+
+  <div class="mt-3 flex items-start justify-between gap-2">
+    <div class="min-w-0">
+      <h3 class="truncate text-sm font-medium"><%= garment.display_name %></h3>
+      <p class="label mt-0.5"><%= back ? "Frente e costas" : "Só frente" %></p>
+    </div>
+    <div class="flex shrink-0 items-center">
+      <% redoable = garment.photos.reject(&:in_flight?) %>
+      <% if redoable.any? %>
+        <button type="button"
+                class="rounded-full p-1.5 text-ink-faint opacity-0 transition hover:bg-ink/5 hover:text-ink group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100 cursor-pointer"
+                aria-label="Gerar de novo a foto de <%= garment.display_name %>"
+                title="Gerar de novo"
+                data-action="regenerate#open"
+                data-regenerate-title-param="<%= garment.display_name %>"
+                data-regenerate-kind-param="photo"
+                data-regenerate-options-param="<%= redoable.map { { label: it.side_label.capitalize, url: regenerate_photo_path(it), instructions: it.instructions.to_s } }.to_json %>">
+          <svg aria-hidden="true" viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg>
+        </button>
+      <% end %>
+      <%= button_to garment_path(garment), method: :delete,
+            form: { data: { turbo_confirm: "Remover #{garment.display_name}?" } },
+            class: "rounded-full p-1.5 text-ink-faint opacity-0 transition hover:bg-ink/5 hover:text-chalk group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100 cursor-pointer",
+            "aria-label": "Remover #{garment.display_name}" do %>
+        <svg aria-hidden="true" viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>
+      <% end %>
+    </div>
+  </div>
+</article>

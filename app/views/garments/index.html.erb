@@ -1,0 +1,60 @@
+<%= turbo_stream_from :garments %>
+<%= turbo_stream_from :videos %>
+
+<div data-controller="selection" data-selection-max-images-value="<%= Video.max_reference_images %>" class="pb-40">
+  <header class="mx-auto max-w-7xl px-4 sm:px-8 pt-8 sm:pt-12">
+    <div class="flex items-end justify-between gap-6">
+      <div>
+        <p class="label">Guarda-roupa digital</p>
+        <h1 class="font-display text-[3.5rem] sm:text-8xl leading-[0.85] tracking-tight mt-2">
+          Cabide<span class="text-chalk">.</span>
+        </h1>
+      </div>
+      <button type="button" class="btn-ink shrink-0 max-sm:size-12 max-sm:px-0" aria-label="Adicionar peça" data-action="dialog#open" data-dialog-id-param="new-garment">
+        <svg aria-hidden="true" viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        <span class="max-sm:hidden">Adicionar peça</span>
+      </button>
+    </div>
+
+    <p class="mt-6 max-w-xl text-ink-soft leading-relaxed">
+      Fotografe suas roupas do jeito que der. O Cabide transforma cada foto em imagem de catálogo
+      e, com as peças escolhidas, grava um vídeo de alguém vestindo o look.
+    </p>
+
+    <%= render "garments/higgsfield_status", ready: @higgsfield_ready, backend: @higgsfield_backend %>
+  </header>
+
+  <section class="mx-auto max-w-7xl px-4 sm:px-8 mt-12" aria-labelledby="garments-title">
+    <div class="flex items-center gap-4">
+      <h2 id="garments-title" class="label text-ink">Peças</h2>
+      <div class="rail h-px flex-1"></div>
+    </div>
+
+    <div id="garments" class="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      <%= render @garments %>
+    </div>
+
+    <%= render "garments/empty" %>
+  </section>
+
+  <section id="videos-section" class="mx-auto max-w-7xl px-4 sm:px-8 mt-20 scroll-mt-8" aria-labelledby="videos-title">
+    <div class="flex items-center gap-4">
+      <h2 id="videos-title" class="label text-ink">Vídeos</h2>
+      <div class="rail h-px flex-1"></div>
+    </div>
+
+    <div id="videos-list" class="mt-6">
+      <div id="videos" class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <%= render @videos %>
+      </div>
+      <p data-empty class="text-ink-faint text-sm py-6">
+        Nenhum vídeo ainda. Selecione uma ou mais peças prontas e toque em “Gerar vídeo”.
+      </p>
+    </div>
+  </section>
+
+  <%= render "videos/selection_bar" %>
+</div>
+
+<%= render "garments/form_dialog" %>
+<%= render "shared/regenerate_dialog" %>

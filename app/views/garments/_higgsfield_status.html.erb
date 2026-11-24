@@ -1,0 +1,31 @@
+<% if backend == "mcp" && ready %>
+  <div class="mt-6 flex flex-wrap items-center gap-2">
+    <span class="inline-flex items-center gap-2 rounded-full border border-ink/10 bg-white/60 py-1.5 pl-3 pr-1.5 text-sm">
+      <span class="size-1.5 rounded-full bg-thread"></span>
+      <span>Higgsfield conectada</span>
+      <%= turbo_frame_tag "balance", src: balance_path, loading: :lazy do %>
+        <span class="label rounded-full bg-paper-deep px-2 py-0.5">…</span>
+      <% end %>
+    </span>
+    <%= button_to "Desconectar", higgsfield_connection_path, method: :delete,
+          form: { data: { turbo_confirm: "Desconectar a Higgsfield?" } },
+          class: "label cursor-pointer px-2 py-1 hover:text-chalk" %>
+  </div>
+<% elsif backend == "mcp" %>
+  <div class="mt-6 flex flex-col gap-4 rounded-3xl border border-ink/10 bg-white/60 p-5 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <p class="font-medium">Conecte sua conta da Higgsfield</p>
+      <p class="mt-1 text-sm text-ink-soft">
+        As fotos de catálogo (Nano Banana) e os vídeos (Kling 4) usam os créditos do seu plano. O login abre na própria Higgsfield.
+      </p>
+    </div>
+    <%= link_to connect_higgsfield_path, class: "btn-ink shrink-0", data: { turbo: false } do %>
+      Conectar Higgsfield
+      <svg aria-hidden="true" viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+    <% end %>
+  </div>
+<% elsif !ready %>
+  <div class="mt-6 rounded-2xl border border-chalk/30 bg-chalk/5 px-4 py-3 text-sm text-chalk">
+    Falta configurar a Higgsfield: preencha <code class="font-mono">HF_API_KEY</code> no arquivo <code class="font-mono">.env</code> e reinicie o container.
+  </div>
+<% end %>

@@ -1,0 +1,65 @@
+<article id="<%= dom_id(video) %>" class="group animate-rise">
+  <div class="relative aspect-[9/16] overflow-hidden rounded-2xl bg-ink">
+    <% if video.completed? && video.file.attached? %>
+      <%= video_tag url_for(video.file), controls: true, playsinline: true, loop: true, preload: "metadata",
+            class: "size-full object-cover" %>
+    <% else %>
+      <% thumbs = video.garments.flat_map(&:catalog_images).first(4) %>
+      <div class="absolute inset-0 grid grid-cols-2 gap-px bg-white/5 <%= "opacity-40" %>">
+        <% thumbs.each do |image| %>
+          <%= image_tag image.variant(resize_to_limit: [ 300, 400 ], format: :webp), alt: "", class: "size-full bg-white object-contain p-2" %>
+        <% end %>
+      </div>
+      <div class="absolute inset-0 bg-ink/55"></div>
+      <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4 text-center text-paper">
+        <% if video.failed? %>
+          <p class="label text-chalk">Falhou</p>
+          <p class="line-clamp-4 text-xs text-paper/80"><%= video.error %></p>
+          <%= button_to "Tentar de novo", retry_video_path(video), class: "text-xs font-medium underline underline-offset-2 cursor-pointer" %>
+        <% else %>
+          <span class="relative flex size-3">
+            <span class="absolute inline-flex size-full animate-ping rounded-full bg-chalk opacity-75"></span>
+            <span class="relative inline-flex size-3 rounded-full bg-chalk"></span>
+          </span>
+          <p class="font-display text-2xl leading-tight">Gravando</p>
+          <p class="label text-paper/70">Leva alguns minutos</p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="mt-3 flex items-start justify-between gap-2">
+    <div class="min-w-0">
+      <h3 class="truncate text-sm font-medium" title="<%= video.garments.map(&:display_name).to_sentence %>">
+        <%= video.garments.map(&:display_name).to_sentence %>
+      </h3>
+      <p class="label mt-0.5"><%= video.duration %> s · <%= l(video.created_at, format: "%d/%m %H:%M") %></p>
+    </div>
+    <div class="flex items-center">
+      <% unless video.in_flight? %>
+        <button type="button"
+                class="rounded-full p-1.5 text-ink-faint transition hover:bg-ink/5 hover:text-ink cursor-pointer"
+                aria-label="Gravar este vídeo de novo" title="Gerar de novo"
+                data-action="regenerate#open"
+                data-regenerate-title-param="<%= video.garments.map(&:display_name).to_sentence %>"
+                data-regenerate-kind-param="video"
+                data-regenerate-options-param="<%= [ { label: "Vídeo de #{video.duration} s", url: regenerate_video_path(video), instructions: video.instructions.to_s } ].to_json %>">
+          <svg aria-hidden="true" viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg>
+        </button>
+      <% end %>
+      <% if video.completed? && video.file.attached? %>
+        <%= link_to rails_blob_path(video.file, disposition: "attachment"),
+              class: "rounded-full p-1.5 text-ink-faint transition hover:bg-ink/5 hover:text-ink",
+              "aria-label": "Baixar vídeo" do %>
+          <svg aria-hidden="true" viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 20h14"/></svg>
+        <% end %>
+      <% end %>
+      <%= button_to video_path(video), method: :delete,
+            form: { data: { turbo_confirm: "Remover este vídeo?" } },
+            class: "rounded-full p-1.5 text-ink-faint opacity-0 transition hover:bg-ink/5 hover:text-chalk group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer",
+            "aria-label": "Remover vídeo" do %>
+        <svg aria-hidden="true" viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>
+      <% end %>
+    </div>
+  </div>
+</article>

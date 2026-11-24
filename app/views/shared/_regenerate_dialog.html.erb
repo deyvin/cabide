@@ -1,0 +1,41 @@
+<%# Shared "gerar de novo" dialog, filled in by regenerate_controller.js from the card's button. %>
+<dialog id="regenerate-dialog" data-regenerate-target="dialog"
+        class="m-auto w-[min(100%-2rem,30rem)] rounded-3xl bg-paper p-0 text-ink shadow-2xl open:animate-rise">
+  <form method="post" data-regenerate-target="form" data-turbo="false" class="p-6 sm:p-8">
+    <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+
+    <div class="flex items-start justify-between">
+      <div class="min-w-0">
+        <p class="label">Gerar de novo</p>
+        <h2 class="font-display text-3xl mt-1 truncate" data-regenerate-target="title"></h2>
+      </div>
+      <button type="button" data-action="dialog#close" aria-label="Fechar" class="rounded-full p-2 hover:bg-ink/5 cursor-pointer">
+        <svg aria-hidden="true" viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+
+    <fieldset class="mt-5" data-regenerate-target="choices">
+      <legend class="label">O que refazer</legend>
+      <div class="mt-2 flex flex-wrap gap-2" data-regenerate-target="options"></div>
+    </fieldset>
+
+    <label class="mt-5 block">
+      <span class="label">O que corrigir? (opcional)</span>
+      <textarea name="instructions" rows="3" maxlength="500" data-regenerate-target="instructions"
+                placeholder="O logo Mano Deyvin fica no peito direito, não na barra."
+                class="mt-2 block w-full resize-none rounded-xl border border-ink/15 bg-white/70 px-4 py-3 text-sm leading-relaxed placeholder:text-ink-faint focus:border-ink focus:outline-none"></textarea>
+    </label>
+    <p class="mt-2 text-xs leading-relaxed text-ink-soft">
+      A observação vai junto com o prompt, com prioridade. Deixe em branco para só tentar de novo.
+      Cada nova geração gasta créditos.
+    </p>
+
+    <div class="mt-6 flex justify-end gap-2">
+      <button type="button" class="btn-line" data-action="dialog#close">Cancelar</button>
+      <button type="submit" class="btn-ink" data-regenerate-target="submit">
+        Gerar de novo
+        <svg aria-hidden="true" viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg>
+      </button>
+    </div>
+  </form>
+</dialog>

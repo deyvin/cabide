@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-paper: #f3efe7;
+  --color-paper-deep: #e9e3d7;
+  --color-ink: #161412;
+  --color-ink-soft: #57524a;
+  --color-ink-faint: #9a9387;
+  --color-chalk: #c8432b;
+  --color-thread: #2f5d50;
+}
+
+@layer base {
+  html {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  dialog::backdrop {
+    background: rgb(22 20 18 / 0.45);
+    backdrop-filter: blur(3px);
+  }
+}
+
+@layer components {
+  .label {
+    @apply font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft;
+  }
+
+  .btn-ink,
+  .btn-line {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 h-11 text-sm font-medium transition
+      active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none cursor-pointer;
+  }
+
+  .btn-ink {
+    @apply bg-ink text-paper hover:bg-black;
+  }
+
+  .btn-line {
+    @apply border border-ink/20 text-ink hover:border-ink hover:bg-white/50;
+  }
+
+  /* Hanger-rail line above the grid */
+  .rail {
+    background-image: linear-gradient(to right, var(--color-ink) 0 100%);
+    background-size: 100% 1px;
+    background-repeat: no-repeat;
+    background-position: 0 50%;
+  }
+
+  .shimmer {
+    background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.55) 50%, transparent 70%);
+    background-size: 220% 100%;
+    animation: shimmer 1.8s linear infinite;
+  }
+
+  .dropzone:has(input:focus-visible) {
+    @apply ring-2 ring-ink ring-offset-2 ring-offset-paper;
+  }
+}
+
+/* Empty states disappear as soon as a live broadcast adds the first item. */
+#garments:has(> *) ~ [data-empty],
+#videos:has(> *) ~ [data-empty] {
+  display: none;
+}
+
+@keyframes shimmer {
+  from { background-position: 120% 0; }
+  to { background-position: -120% 0; }
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+.animate-rise {
+  animation: rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer, .animate-rise { animation: none; }
+}

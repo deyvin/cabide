@@ -1,0 +1,7 @@
+<%= turbo_frame_tag "balance" do %>
+  <% if @balance && @balance["credits"] %>
+    <span class="label rounded-full bg-ink px-2 py-0.5 text-paper" title="Plano <%= @balance["subscription_plan_type"] %>">
+      <%= number_with_delimiter(@balance["credits"].to_f.round(1), delimiter: ".", separator: ",") %> créditos
+    </span>
+  <% end %>
+<% end %>

@@ -1,0 +1,10 @@
+<div id="flash" class="pointer-events-none fixed inset-x-0 top-4 z-50 flex flex-col items-center gap-2 px-4">
+  <% flash.each do |type, message| %>
+    <div data-controller="dismiss" data-dismiss-after-value="5000"
+         class="animate-rise pointer-events-auto flex max-w-md items-start gap-3 rounded-2xl px-4 py-3 text-sm shadow-[0_8px_30px_rgb(22_20_18/0.12)]
+                <%= type.to_s == "alert" ? "bg-chalk text-white" : "bg-ink text-paper" %>">
+      <span class="leading-snug"><%= message %></span>
+      <button type="button" data-action="dismiss#close" aria-label="Fechar" class="-mr-1 opacity-60 hover:opacity-100 cursor-pointer">&times;</button>
+    </div>
+  <% end %>
+</div>

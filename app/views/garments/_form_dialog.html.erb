@@ -1,0 +1,47 @@
+<dialog id="new-garment"
+        class="m-auto w-[min(100%-2rem,34rem)] rounded-3xl bg-paper p-0 text-ink shadow-2xl open:animate-rise">
+  <%= form_with model: Garment.new, url: garments_path, class: "p-6 sm:p-8", data: { turbo: false } do |f| %>
+    <div class="flex items-start justify-between">
+      <div>
+        <p class="label">Nova peça</p>
+        <h2 class="font-display text-4xl mt-1">Pendure no cabide</h2>
+      </div>
+      <button type="button" data-action="dialog#close" aria-label="Fechar" class="rounded-full p-2 hover:bg-ink/5 cursor-pointer">
+        <svg aria-hidden="true" viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+
+    <div class="mt-6 grid grid-cols-2 gap-3">
+      <% [ [ :front, "Frente", true ], [ :back, "Costas", false ] ].each do |field, label, required| %>
+        <label class="dropzone relative block aspect-[3/4] cursor-pointer overflow-hidden rounded-2xl border border-dashed border-ink/25 bg-white/60 transition hover:border-ink"
+               data-controller="file-preview">
+          <%= f.file_field field, accept: "image/*,.heic,.heif", required: required,
+                class: "sr-only", data: { action: "file-preview#show", file_preview_target: "input" } %>
+          <img data-file-preview-target="image" alt="" class="absolute inset-0 hidden size-full object-cover">
+          <span data-file-preview-target="placeholder" class="absolute inset-0 grid place-content-center gap-2 p-4 text-center">
+            <svg aria-hidden="true" viewBox="0 0 24 24" class="mx-auto size-6 text-ink-soft" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            <span class="text-sm font-medium"><%= label %></span>
+            <span class="label"><%= required ? "obrigatória" : "opcional" %></span>
+          </span>
+          <span data-file-preview-target="name" class="label absolute inset-x-2 bottom-2 hidden truncate rounded-full bg-white/90 px-2 py-1 text-center"></span>
+        </label>
+      <% end %>
+    </div>
+
+    <div class="mt-5">
+      <%= f.label :name, "Nome (opcional)", class: "label" %>
+      <%= f.text_field :name, placeholder: "Moletom Anti Front End Club",
+            class: "mt-2 block h-11 w-full rounded-xl border border-ink/15 bg-white/70 px-4 text-sm placeholder:text-ink-faint focus:border-ink focus:outline-none" %>
+    </div>
+
+    <p class="mt-4 text-xs leading-relaxed text-ink-soft">
+      Vale foto no chão, no cabide ou na cama. Cada foto vira uma imagem de catálogo com fundo branco.
+      Fotos HEIC do iPhone funcionam.
+    </p>
+
+    <div class="mt-6 flex justify-end gap-2">
+      <button type="button" class="btn-line" data-action="dialog#close">Cancelar</button>
+      <%= f.submit "Adicionar ao cabide", class: "btn-ink", data: { disable_with: "Enviando…" } %>
+    </div>
+  <% end %>
+</dialog>

@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "cabide",
+      "runtimeExecutable": "docker",
+      "runtimeArgs": [
+        "compose",
+        "up",
+        "web",
+        "css"
+      ],
+      "port": 3000,
+      "autoPort": false
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+# Higgsfield API settings. Endpoints and default params can be overridden
+# with environment variables, so switching models needs no code change.
+shared: &shared
+  # "mcp" (official MCP server, OAuth login, plan credits) or "api" (REST API key).
+  backend: <%= ENV.fetch("HF_BACKEND", "mcp") %>
+
+  mcp:
+    url: <%= ENV.fetch("HF_MCP_URL", "https://mcp.higgsfield.ai/mcp") %>
+    redirect_uri: <%= ENV.fetch("HF_MCP_REDIRECT_URI", "http://localhost:3000/higgsfield/callback") %>
+    image:
+      model: <%= ENV.fetch("HF_MCP_IMAGE_MODEL", "nano_banana_2_1") %>
+      params:
+        aspect_ratio: "3:4"
+        resolution: "2k"
+    video:
+      model: <%= ENV.fetch("HF_MCP_VIDEO_MODEL", "kling4_0") %>
+      max_reference_images: 10
+      params:
+        mode: "reference-to-video"
+        resolution: "1080p"
+        aspect_ratio: "9:16"
+
+  base_url: <%= ENV.fetch("HF_API_BASE_URL", "https://api.higgsfield.ai") %>
+  # Single key as given by the Higgsfield console ("<id>:<secret>")...
+  api_key: <%= ENV["HF_API_KEY"].to_json %>
+  # ...or the two halves separately.
+  key_id: <%= ENV["HF_API_KEY_ID"].to_json %>
+  key_secret: <%= ENV["HF_API_KEY_SECRET"].to_json %>
+  poll_interval: <%= ENV.fetch("HF_POLL_INTERVAL", 5) %>
+  # ~30 min of polling before giving up (videos can take several minutes).
+  max_poll_attempts: <%= ENV.fetch("HF_MAX_POLL_ATTEMPTS", 360) %>
+
+  image:
+    # Catalog photo (ghost mannequin, white background) from one reference photo.
+    # Grok Image 2.0 kept prints far more faithful than Qwen Image 3 Edit in our tests.
+    endpoint: <%= ENV.fetch("HF_IMAGE_ENDPOINT", "/xai/grok-imagine-image-2.0") %>
+    params:
+      resolution: "2k"
+      aspect_ratio: "3:4"
+      quality: "medium"
+
+  video:
+    # UGC try-on video from the catalog photos of the selected garments.
+    endpoint: <%= ENV.fetch("HF_VIDEO_ENDPOINT", "/kling-video/o3/image-reference") %>
+    params:
+      mode: "pro"
+      sound: "on"
+      aspect_ratio: "9:16"
+      multi_shots: false
+
+development:
+  <<: *shared
+
+test:
+  <<: *shared
+  backend: api
+  base_url: https://api.higgsfield.test
+  key_id: test-key
+  key_secret: test-secret
+  poll_interval: 0
+
+production:
+  <<: *shared
